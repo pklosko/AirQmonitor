@@ -39,11 +39,12 @@ class sensorCommunity:
         }
         listObj = []
         for key in data:
-            val = {
-                "value_type": MAP_TO_SC[key],
-                "value": data[key]
-            }
-            listObj.append(val)
+            if key in MAP_TO_SC:
+              val = {
+                  "value_type": MAP_TO_SC[key],
+                  "value": data[key]
+              }
+              listObj.append(val)
         json_values["sensordatavalues"] = listObj
         self.data = json.dumps(json_values)
 
