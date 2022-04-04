@@ -5,6 +5,7 @@ from time import sleep
 
 from sps30 import SPS30
 from sht40 import SHT40
+from bmp280 import BMP280
 from sensorComm.sensorComm import sensorCommunity
 
 PERIOD = 3  #minutes
@@ -14,6 +15,8 @@ SHT_PRECISION = 'hi'        # SHT40 precision ['hi' | 'mid' | 'low']
 
 SPS_BUS = 3                 # SPS30 i2c bus
 SPS_AUTO_CLEANING_DAYS = 5  # SPS30 auto clearing period
+
+BME_BUS = 4
 
 # SensorsCommunity
 SC_SENSOR_ID  = "your-sensorid"
@@ -32,6 +35,7 @@ if __name__ == "__main__":
 # Init SPS & SHT class, set i2c bus
     sps_sensor = SPS30(SPS_BUS)
     sht_sensor = SHT40(SHT_BUS)
+    bmp_sensor = BMP280(BME_BUS)
     sc = sensorCommunity(SC_SENSOR_ID)
 
 # Print some info
@@ -53,12 +57,28 @@ if __name__ == "__main__":
 # Start SPS30 meaasurement
     sps_sensor.start_measurement()
     print(f"SPS data                      : {sps_sensor.read_measurement()}")
+
+    print("")
+    print("===========  BMP280 ============")
+    print(f"BMP Device ID    : {bmp_sensor.device_id()}")
+    print(f"BMP MEAS_REG     : {bmp_sensor.meas_reg()}")
+    print(f"BMP CTRL_REG     : {bmp_sensor.ctrl_reg()}")
+    print(f"BMP SET CTRL_REG : {bmp_sensor.set_meas_reg()}")
+    print(f"BMP SET CTRL_REG : {bmp_sensor.set_ctrl_reg()}")
+    print(f"BMP MEAS_REG     : {bmp_sensor.meas_reg()}")
+    print(f"BMP CTRL_REG     : {bmp_sensor.ctrl_reg()}")
+    print(f"BMP CALIB_REG    : {bmp_sensor.calib_reg()}")
+
+    bmp_sensor.read_calib_data(bmp_sensor.calib_reg())
+
+
     print("===========  LOOP  ===========")
 
 # Load all values in one list/dist and print (or use according to your discretion)
     while True:
         try:
             sensors_values = dict(sht_sensor.read_values(SHT_PRECISION))
+            sensors_values.update(bmp_sensor.read_values())
             sc.create_json(sensors_values)
             print(sc.post(SC_SHT_PIN))
 
