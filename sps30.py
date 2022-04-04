@@ -3,22 +3,22 @@ from time import sleep
 from i2c.i2c import I2C
 
 # I2C commands
-CMD_START_MEASUREMENT = [0x00, 0x10]
-CMD_START_MEASUREMENT_IEE = [0x00, 0x10, 0x03, 0x00]       #IEEE754_float
-CMD_START_MEASUREMENT_INT = [0x00, 0x10, 0x05, 0x00]       #unsigned_16_bit_integer
-CMD_STOP_MEASUREMENT = [0x01, 0x04]
-CMD_READ_DATA_READY_FLAG = [0x02, 0x02]
-CMD_READ_MEASURED_VALUES = [0x03, 0x00]
-CMD_SLEEP = [0x10, 0x01]
-CMD_WAKEUP = [0x11, 0x03]
-CMD_START_FAN_CLEANING = [0x56, 0x07]
+CMD_START_MEASUREMENT      = [0x00, 0x10]
+CMD_START_MEASUREMENT_IEE  = [0x00, 0x10, 0x03, 0x00]       #IEEE754_float
+CMD_START_MEASUREMENT_INT  = [0x00, 0x10, 0x05, 0x00]       #unsigned_16_bit_integer
+CMD_STOP_MEASUREMENT       = [0x01, 0x04]
+CMD_READ_DATA_READY_FLAG   = [0x02, 0x02]
+CMD_READ_MEASURED_VALUES   = [0x03, 0x00]
+CMD_SLEEP                  = [0x10, 0x01]
+CMD_WAKEUP                 = [0x11, 0x03]
+CMD_START_FAN_CLEANING     = [0x56, 0x07]
 CMD_AUTO_CLEANING_INTERVAL = [0x80, 0x04]
-CMD_PRODUCT_TYPE = [0xD0, 0x02]
-CMD_SERIAL_NUMBER = [0xD0, 0x33]
-CMD_FIRMWARE_VERSION = [0xD1, 0x00]
-CMD_READ_STATUS_REGISTER = [0xD2, 0x06]
-CMD_CLEAR_STATUS_REGISTER = [0xD2, 0x10]
-CMD_RESET = [0xD3, 0x04]
+CMD_PRODUCT_TYPE           = [0xD0, 0x02]
+CMD_SERIAL_NUMBER          = [0xD0, 0x33]
+CMD_FIRMWARE_VERSION       = [0xD1, 0x00]
+CMD_READ_STATUS_REGISTER   = [0xD2, 0x06]
+CMD_CLEAR_STATUS_REGISTER  = [0xD2, 0x10]
+CMD_RESET                  = [0xD3, 0x04]
 
 # Length of response in bytes
 NBYTES_READ_DATA_READY_FLAG = 3
@@ -42,7 +42,8 @@ class SPS30:
 
 # Init I2C BUS
     def __init__(self,  bus: int = 1, address: int = 0x69):
-        self.i2c = I2C(bus, address)
+        self.cleaning = 0
+        self.i2c      = I2C(bus, address)
 
 # I2C commands BEGIN
     def serial_number(self) -> str:
@@ -110,7 +111,10 @@ class SPS30:
         self.i2c.write(CMD_WAKEUP)
 
     def start_fan_cleaning(self) -> None:
+        self.cleaning = 1
         self.i2c.write(CMD_START_FAN_CLEANING)
+        sleep(12)
+        self.cleaning = 0
 
     def read_auto_cleaning_interval(self, unit: str = 's') -> int:
         dividier = {
@@ -190,6 +194,10 @@ class SPS30:
         for i in range(len(decimal)):
             dec += int(decimal[i]) / (2**(i+1))
         return round((((-1)**(sign) * real) + dec), 3)
+
+    def is_cleaning(self) -> int:
+        return self.cleaning
+
 # Helper functions END
 #
 # Main functions
@@ -218,5 +226,5 @@ class SPS30:
                 sensor_data[0] << 24 | sensor_data[1] << 16 | sensor_data[2] << 8 | sensor_data[3])
         return assoc
 
-    def read_values(self) -> str:
+    def read_values(self) -> dict:
         return self.values_to_list(self.read_measurement())

@@ -97,5 +97,5 @@ class SHT40:
                 assoc[idx] = -6 + 125 *(sensor_data[0] << 8 | sensor_data[1])/65535
         return assoc
 
-    def read_values(self, res: str = 'hi') -> str:
+    def read_values(self, res: str = 'hi') -> dict:
         return self.values_to_list(self.read_measurement(res))

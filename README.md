@@ -5,6 +5,7 @@
 Python-based drivers for 
   - [Sensirion SPS30](https://sensirion.com/products/catalog/SPS30/) particulate matter sensor.
   - [Sensirion SHT40](https://sensirion.com/products/catalog/SHT40/) .1.8% / max. .3.5% Digital humidity and temperature sensor.
+  - [BOSCH BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/) absolute barometric pressure sensor
 
 Tested on Raspberry Pi Zero/Zero W2.
 
@@ -35,7 +36,8 @@ Tested on Raspberry Pi Zero/Zero W2.
 #### I2C Interface
 
 ```none
-  Sensor Pins                                 Raspberry Pi Pins [default, see below for alternative i2c buses]
+  Sensor Pins                                 Raspberry Pi Pins 
+                                              [default, see below for alternative i2c buses]
 .-------.-----.                             .----------.---------.
 | Pin 1 | VDD |-----------------------------|    5V    | Pin 2/4 |
 | Pin 2 | SDA |-----------------------------| I2C1 SDA |  Pin 3  |
@@ -62,7 +64,7 @@ Tested on Raspberry Pi Zero/Zero W2.
 
 ### Example usage
 
-## See example.py
+#### See example.py
  
 Default parameters of `SPS30` class
 
@@ -79,12 +81,27 @@ Default parameters of `SHT40` class
 | bus       | 1     | I2C bus of Raspberry Pi |
 | address   | 0x44  | Default I2C address     |
 
-## Output data format
+
+Default parameters of `BMP280` class
+
+| Parameter      | Value  | Description              |
+| ---------------| ------ | ------------------------ |
+| bus            | 1      | I2C bus of Raspberry Pi  |
+| address        | 0x77   | Default I2C address      |
+| oversampling T | 1x     | temperature oversampling |
+| oversampling p | 1x     | pressure oversampling    |
+| standby time   | 1s     | stand-by time            |
+| IIR filter     | off    | IIR filter               |
+| Mode           | forced | mode                     |
+
+#### Output data format
 
 ```json
 {
   "t": 22.02258335240711,
+  "t1": 22.546321267577, 
   "h": 41.55664911879148,
+  "p": 100142.342398298,
   "pm1": 1.285,
   "pm2": 5.262,
   "pm4": 9.045,
@@ -104,10 +121,10 @@ None
 
 ### To-Do
 
-- BMP/BME280 support
 - daemonize
 - sleep SPS30 in wait cycle of loop & waiting for relevant data. See [Low-Power Operation](https://sensirion.com/media/documents/188A2C3C/6166F165/Sensirion_Particulate_Matter_AppNotes_SPS30_Low_Power_Operation_D1.pdf)
 
 #### SPS30 code based on [Sensirion SPS30 code by @dvsu](https://github.com/dvsu/sps30)
+
 
 
