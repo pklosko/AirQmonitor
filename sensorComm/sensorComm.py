@@ -51,7 +51,7 @@ class sensorCommunity:
     def post(self, Xpin:int = 1) -> str:
         try:
             url = SC_API_URL
-            print("POST Data ", url)
+#            print("POST Data ", url)
             headers = {
                 'User-Agent'  : "Python/AirQmonitor",
                 'Connection'  : "close",

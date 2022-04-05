@@ -34,9 +34,9 @@ T_SB_62p5 = 0b001
 T_SB_125  = 0b010
 T_SB_250  = 0b011
 T_SB_500  = 0b100
-T_SB_1000 = 0b101 #default
+T_SB_1000 = 0b101
 T_SB_2000 = 0b110
-T_SB_4000 = 0b111
+T_SB_4000 = 0b111 #default
 
 # IIR filetr
 IIR_OFF = 0b000 #default
@@ -47,8 +47,8 @@ IIR_x16 = 0b100
 
 # Mode
 MODE_SLEEP  = 0b00
-MODE_FORCED = 0b01 #default
-MODE_NORMAL = 0b11
+MODE_FORCED = 0b01
+MODE_NORMAL = 0b11 #defsult
 
 # Length of response in bytes
 NBYTES_CALIB   = 24
@@ -127,7 +127,6 @@ class BMP280:
     def temp_press_reg(self, cmd: int = CMD_TEMPERATURE) -> int:
         self.i2c.write(cmd)
         data = self.i2c.read(NBYTES_TEMP_P)
-#        print(data)
         return (data[0] << 16 | data[1] << 8 | data[2]) >> 4
 # I2C commands END
 #
@@ -139,7 +138,6 @@ class BMP280:
             return c_data
 
     def read_calib_data(self, data: list) -> dict:
-#        print(data)
         i = 0
         for calib in self.calib_data:
             offset = (i * CALIB_PACKET_SIZE)
@@ -184,6 +182,8 @@ class BMP280:
         return self.calc_p(self.temp_press_reg(CMD_PRESSURE))
 
     def values_to_list(self) -> dict:
+        self.set_meas_reg()
+        sleep(0.01)
         assoc = {
               "t1": self.temperature(),
               "p": self.pressure()
