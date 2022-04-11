@@ -5,12 +5,13 @@ import sys
 import atexit
 import signal
 import logging
+import threading
 import logging.handlers
 from time import sleep
 from sps30 import SPS30
 from sht40 import SHT40
 from bmp280 import BMP280
-from myIoT.myIoT import myIOT
+#from myIoT.myIoT import myIOT
 from sensorComm.sensorComm import sensorCommunity
 
 PERIOD = 3
@@ -28,11 +29,11 @@ LOG_LEVEL    = logging.INFO               # Could be e.g. "INFO", DEBUG" or "WAR
 
 #API keys etc.
 # SensorsCommunity
-SC_SENSOR_ID  = "raspi-e45f01548d62"
+SC_SENSOR_ID  = "raspi-xxxxxx"
 SC_SHT_PIN    = 11
 SC_SPS_PIN    = 1
-# PK IOT Platform (simply GET variables)
-IOT_USER_AGENT = "IoT.rpi0-53-e45f01548d62AQ"
+# PK IOT Platform (simply HTTP GET, vals in QUERY STRING)
+IOT_USER_AGENT = "rpi/Python/AirQmonitor"
 
 
 # Logger
@@ -80,7 +81,7 @@ if __name__ == "__main__":
 
     def sps_stop():
         print("===========  STOP MEASUREMENT AND EXIT  ===========")
-        sps_sensor.stop_measurement()
+        sps_sensor.stop_measurement_and_close()
 
     def sigusr1_handler(signum, frame):
         print("===========  START CLEANING for 10sec  ===========")
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     sps_sensor = SPS30(SPS_BUS)
     sht_sensor = SHT40(SHT_BUS)
     bmp_sensor = BMP280(SHT_BUS)
-    iot = myIOT(PERIOD, IOT_USER_AGENT)
+#    iot = myIOT(PERIOD, IOT_USER_AGENT)
     sc = sensorCommunity(SC_SENSOR_ID)
 
     print("===========  SHT40  ===========")
@@ -158,9 +159,13 @@ if __name__ == "__main__":
             sc.create_json(sensors_values)
             print(sc.post(SC_SPS_PIN))
 
-            iot.values_to_query_str(sensors_values)
-            iot.sensor_info  = sensor_info
-            print(iot.push())
+#            iot.values_to_query_str(sensors_values)
+#            iot.sensor_info  = sensor_info
+#            print(iot.push())
+
+            sps_sensor.stop_measurement()
+            tim_thr = threading.Timer((int((PERIOD*60)-45)), sps_sensor.start_measurement, args=()).start()
+
             sleep(PERIOD*60)
 
         except KeyboardInterrupt:

@@ -121,8 +121,7 @@ None
 
 ### To-Do
 
-- daemonize
-- sleep SPS30 in wait cycle of loop & waiting for relevant data. See [Low-Power Operation](https://sensirion.com/media/documents/188A2C3C/6166F165/Sensirion_Particulate_Matter_AppNotes_SPS30_Low_Power_Operation_D1.pdf)
+None
 
 #### SPS30 code based on [Sensirion SPS30 code by @dvsu](https://github.com/dvsu/sps30)
 

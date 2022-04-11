@@ -152,9 +152,12 @@ class SPS30:
     def reset(self) -> None:
         self.i2c.write(CMD_RESET)
 
-    def stop_measurement(self) -> None:
+    def stop_measurement_and_close(self) -> None:
         self.i2c.write(CMD_STOP_MEASUREMENT)
         self.i2c.close()
+
+    def stop_measurement(self) -> None:
+        self.i2c.write(CMD_STOP_MEASUREMENT)
 
     def start_measurement(self) -> None:
         data = CMD_START_MEASUREMENT_IEE
