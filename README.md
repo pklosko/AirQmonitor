@@ -96,6 +96,7 @@ Default parameters of `BMP280` class
 
 #### Output data format
 
+##### RAW Data - JSON
 ```json
 {
   "t": 22.02258335240711,
@@ -114,6 +115,10 @@ Default parameters of `BMP280` class
   "tps": 1.63
 }
 ``` 
+
+##### Sensor.commuity POST API
+
+See [api.sensor.community](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)
 
 ### Dependencies
 
