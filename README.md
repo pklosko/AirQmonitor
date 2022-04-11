@@ -62,6 +62,25 @@ Tested on Raspberry Pi Zero/Zero W2.
 
 ```
 
+### Install
+
+```
+cd AirQmonitor
+
+git clone https://github.com/pklosko/AirQmonitor
+```
+
+Add your sensor.comminuty ID  =  SC_SENSOR_ID in AirQmonitor.py
+
+
+### Run after boot
+
+```
+sudo vi /etc/rc.local
+
+su - pi -c '/home/pi/AirQmonitor/AirQmonitor.py'
+```
+
 ### Example usage
 
 #### See example.py
