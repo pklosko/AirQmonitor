@@ -88,8 +88,14 @@ if __name__ == "__main__":
         sps_sensor.start_fan_cleaning()
         print("===========  CLEANING FINISHED  ===========")
 
+    def sigusr2_handler(signum, frame):
+        print("===========  GET AUTO CLEAINING INTERVAL  ===========")
+        print(sps_sensor.read_auto_cleaning_interval('s'))
+
+
     atexit.register(sps_stop)
     signal.signal(signal.SIGUSR1, sigusr1_handler)
+    signal.signal(signal.SIGUSR2, sigusr2_handler)
 
     sps_sensor = SPS30(SPS_BUS)
     sht_sensor = SHT40(SHT_BUS)
@@ -133,10 +139,10 @@ if __name__ == "__main__":
     print(f"BMP CTRL_REG     : {bmp_sensor.ctrl_reg()}")
     print(f"BMPCALIB_REG     : {bmp_sensor.calib_reg()}")
 
-    sensor_info  = f"SHT40[{sht_serial_number}]+SPS30[{sps_serial_number}/v.{sps_firmware_version}/{sps_product_type}/{sps_auto_cleaning_interval}d/"
-    for key in sps_status_register:
-        sensor_info = sensor_info + "-" + sps_status_register[key]
-    sensor_info = sensor_info + "]"
+    sensor_info  = f"SHT40[{sht_serial_number}]+SPS30[{sps_serial_number}/v.{sps_firmware_version}/{sps_product_type}/{sps_auto_cleaning_interval}d]"
+#    for key in sps_status_register:
+#        sensor_info = sensor_info + "-" + sps_status_register[key]
+#    sensor_info = sensor_info + "]"
 
     bmp_sensor.read_calib_data(bmp_sensor.calib_reg())
 
@@ -150,6 +156,7 @@ if __name__ == "__main__":
             while(sps_sensor.is_cleaning() == 1):
                 print("=========== CLEANING IN PROCESS - WAIT ===========")
                 sleep(1)
+
             sensors_values = dict(sht_sensor.read_values(SHT_PRECISION))
             sensors_values.update(bmp_sensor.read_values())
             sc.create_json(sensors_values)
@@ -160,11 +167,12 @@ if __name__ == "__main__":
             print(sc.post(SC_SPS_PIN))
 
 #            iot.values_to_query_str(sensors_values)
+#            iot.sensor_status = sps_sensor.read_status()
 #            iot.sensor_info  = sensor_info
 #            print(iot.push())
 
             sps_sensor.stop_measurement()
-            tim_thr = threading.Timer((int((PERIOD*60)-45)), sps_sensor.start_measurement, args=()).start()
+            tim_thr = threading.Timer((int((PERIOD*60)-45)), sps_sensor.start_measurement).start()
 
             sleep(PERIOD*60)
 

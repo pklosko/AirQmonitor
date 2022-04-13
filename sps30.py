@@ -75,7 +75,7 @@ class SPS30:
                 result += "".join(map(chr, data[i:i+2]))
         return str(result)
 
-    def read_status_register(self) -> dict:
+    def read_status_register(self, text: int = 1) -> dict:
         self.i2c.write(CMD_READ_STATUS_REGISTER)
         data = self.i2c.read(NBYTES_READ_STATUS_REGISTER)
         status = []
@@ -85,9 +85,16 @@ class SPS30:
             status.extend(data[i:i+2])
         binary = '{:032b}'.format(
             status[0] << 24 | status[1] << 16 | status[2] << 8 | status[3])
-        speed_status = "high/low" if int(binary[10]) == 1 else "ok"
-        laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
-        fan_status = "0rpm" if int(binary[27]) == 1 else "ok"
+
+        speed_status = int(binary[10])
+        laser_status = int(binary[26])
+        fan_status   = int(binary[27])
+
+        if(text == 1):
+            speed_status = "high/low" if int(binary[10]) == 1 else "ok"
+            laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
+            fan_status = "0rpm" if int(binary[27]) == 1 else "ok"
+
         return {
             "speed": speed_status,
             "laser": laser_status,
@@ -231,3 +238,7 @@ class SPS30:
 
     def read_values(self) -> dict:
         return self.values_to_list(self.read_measurement())
+
+    def read_status(self) -> str:
+        sps_status = self.read_status_register(0)
+        return str(sps_status["fan"]) +  str(sps_status["laser"]) + str(sps_status["speed"]) + "00000"
