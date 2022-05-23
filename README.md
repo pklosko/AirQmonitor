@@ -56,11 +56,15 @@ Tested on Raspberry Pi Zero/Zero W2.
 
   sudo nano /boot/config.txt
   
-  dtoverlay=i2c-gpio,bus=5,i2c_gpio_delay_us=20,i2c_gpio_sda=5,i2c_gpio_scl=6
-  dtoverlay=i2c-gpio,bus=4,i2c_gpio_delay_us=20,i2c_gpio_sda=23,i2c_gpio_scl=24
-  dtoverlay=i2c-gpio,bus=3,i2c_gpio_delay_us=20,i2c_gpio_sda=17,i2c_gpio_scl=27
+  dtoverlay=i2c-gpio,bus=4,i2c_gpio_delay_us=100,i2c_gpio_sda=17,i2c_gpio_scl=22
+  dtoverlay=i2c-gpio,bus=3,i2c_gpio_delay_us=20,i2c_gpio_sda=27,i2c_gpio_scl=23
+
 
 ```
+
+#### Connecting PCB
+
+- [PCB][https://oshpark.com/shared_projects/nLJpIWtm#OSHPark]
 
 ### Install
 
@@ -148,6 +152,4 @@ None
 None
 
 #### SPS30 code based on [Sensirion SPS30 code by @dvsu](https://github.com/dvsu/sps30)
-
-
 

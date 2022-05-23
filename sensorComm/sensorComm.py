@@ -1,5 +1,7 @@
 import urllib.request
 import json
+from urllib.error import HTTPError, URLError
+from socket import timeout
 
 #API descr at https://github.com/opendata-stuttgart/meta/wiki/EN-APIs
 
@@ -61,8 +63,17 @@ class sensorCommunity:
             }
             postData = self.data.encode('ascii')
             req = urllib.request.Request(url, postData, headers = headers)
-            resp = urllib.request.urlopen(req)
-            return resp.read()
+            try:
+              resp = urllib.request.urlopen(req)
+              return resp.read()
+            except HTTPError as error:
+              print('HTTP Error: %s\nURL: %s', error, url)
+            except URLError as error:
+              if isinstance(error.reason, timeout):
+                print('Timeout Error: %s\nURL: %s', error, url)
+              else:
+                print('URL Error: %s\nURL: %s', error, url)
+
 
         except Exception as e:
             print("Unable to POST for client", headers['User-Agent'])
