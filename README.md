@@ -59,6 +59,17 @@ Tested on Raspberry Pi Zero/Zero W2.
 |  5  | Interface select (/I2C: GND)                      | GND |
 |  6  | Not connected                                     |  -  |
 
+#### BMP280 Sensor
+
+| Pin | Description                                       | I2C |
+| :-: | :------------------------------------------------ | --- |
+|  1  | Supply voltage 3.3/5V                             | VDD |
+|  2  | Ground                                            | GND |
+|  3  | I2C serial clock input                            | SDA |
+|  4  | I2C serial data input / output                    | SCL |
+|  5  | Interface select (I2C: VDD/SPI: GND)              | CSB |
+|  6  | Sensr Addess (0x76: GND / 0x77: VCC)              | SDO |
+
 
 #### I2C Interface
 
@@ -83,10 +94,24 @@ Tested on Raspberry Pi Zero/Zero W2.
 | Pin 3 | SDA |-----------------------------| I2C1 SDA |  Pin 3  |
 | Pin 4 | SCL |-----------------------------| I2C1 SCL |  Pin 5  |
 | Pin 5 | SEL |-----------------------------|   GND    | Pin 6/9 |
+| Pin 6 | NC  |-------                      |          |         |
 '-------'-----'                             '----------'---------'
 ```
 
-Both SCL and SDA lines are OPEN DRAIN. They should be connected to external pull-up resistors (E.g. R=10kOhm)
+```none
+  BMP280 Sensor Pins                          Raspberry Pi Pins
+                                              [default, see below for alternative i2c buses]
+.-------.-----.                             .----------.---------.
+| Pin 1 | VDD |-----------------------------|    5V    | Pin 2/4 |
+| Pin 2 | GND |-----------------------------|   GND    | Pin 6/9 |
+| Pin 3 | SCL |-----------------------------| I2C1 SDA |  Pin 3  |
+| Pin 4 | SDA |-----------------------------| I2C1 SCL |  Pin 5  |
+| Pin 5 | CSB |-----------------------------|   VCC    | Pin 2/4 |
+| Pin 6 | SD0 |-----------------------------|   VCC    | Pin 2/4 | 
+'-------'-----'                             '----------'---------'
+```
+
+Memo: SCL and SDA lines are OPEN DRAIN. They should be connected to external pull-up resistors (E.g. R=10kOhm)
 
 
 #### Multiple I2C Interfaces @ RPi
