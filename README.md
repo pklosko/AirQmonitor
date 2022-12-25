@@ -65,8 +65,8 @@ Tested on Raspberry Pi Zero/Zero W2.
 | :-: | :------------------------------------------------ | --- |
 |  1  | Supply voltage 3.3/5V                             | VDD |
 |  2  | Ground                                            | GND |
-|  3  | I2C serial clock input                            | SDA |
-|  4  | I2C serial data input / output                    | SCL |
+|  3  | I2C serial clock input                            | SCL |
+|  4  | I2C serial data input / output                    | SDA |
 |  5  | Interface select (I2C: VDD/SPI: GND)              | CSB |
 |  6  | Sensr Addess (0x76: GND / 0x77: VCC)              | SDO |
 
@@ -104,8 +104,8 @@ Tested on Raspberry Pi Zero/Zero W2.
 .-------.-----.                             .----------.---------.
 | Pin 1 | VDD |-----------------------------|    5V    | Pin 2/4 |
 | Pin 2 | GND |-----------------------------|   GND    | Pin 6/9 |
-| Pin 3 | SCL |-----------------------------| I2C1 SDA |  Pin 3  |
-| Pin 4 | SDA |-----------------------------| I2C1 SCL |  Pin 5  |
+| Pin 3 | SCL |-----------------------------| I2C1 SCL |  Pin 5  |
+| Pin 4 | SDA |-----------------------------| I2C1 SDA |  Pin 3  |
 | Pin 5 | CSB |-----------------------------|   VCC    | Pin 2/4 |
 | Pin 6 | SD0 |-----------------------------|   VCC    | Pin 2/4 | 
 '-------'-----'                             '----------'---------'
@@ -124,10 +124,14 @@ Memo: SCL and SDA lines are OPEN DRAIN. They should be connected to external pul
   sudo nano /boot/config.txt
   
   dtoverlay=i2c-gpio,bus=5,i2c_gpio_delay_us=20,i2c_gpio_sda=5,i2c_gpio_scl=6
-  dtoverlay=i2c-gpio,bus=4,i2c_gpio_delay_us=20,i2c_gpio_sda=23,i2c_gpio_scl=24
-  dtoverlay=i2c-gpio,bus=3,i2c_gpio_delay_us=20,i2c_gpio_sda=17,i2c_gpio_scl=27
+  dtoverlay=i2c-gpio,bus=4,i2c_gpio_delay_us=20,i2c_gpio_sda=17,i2c_gpio_scl=22
+  dtoverlay=i2c-gpio,bus=3,i2c_gpio_delay_us=20,i2c_gpio_sda=27,i2c_gpio_scl=23
+
 
 ```
+
+[Small wiring PCB for Raspberry PI](https://oshpark.com/shared_projects/nLJpIWtm)
+
 
 ### Install
 
