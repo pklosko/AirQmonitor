@@ -4,6 +4,8 @@
 
 Python-based drivers for 
   - [Sensirion SPS30](https://sensirion.com/products/catalog/SPS30/) particulate matter sensor.
+  - [Sensirion SEN54](https://sensirion.com/products/catalog/SEN54/) environmental sensor node for PM, RH/T, VOC measurements
+  - [Sensirion SEN55](https://sensirion.com/products/catalog/SEN55/) environmental sensor node for PM, RH/T, VOC, NOx measurements
   - [Sensirion SHT40](https://sensirion.com/products/catalog/SHT40/) .1.8% / max. .3.5% Digital humidity and temperature sensor.
   - [BOSCH BMP280](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/) absolute barometric pressure sensor
 
@@ -33,10 +35,35 @@ Tested on Raspberry Pi Zero/Zero W2.
 |  4  | Interface select (UART: floating (NC) /I2C: GND)  | NC   | GND |
 |  5  | Ground                                            | GND  | GND |
 
+#### SEN5x Sensor
+
+```none
+
+.---------\                      Pin 6     Pin 1
+|          \                       |         |
+|           \                      V         V
+|--------------------------------------------------.
+|                                .-------------.   |
+|                                | x x x x x x |   |
+|                                '-------------'   |
+|     []          []          []          []       |
+'--------------------------------------------------'
+```
+
+| Pin | Description                                       | I2C |
+| :-: | :------------------------------------------------ | --- |
+|  1  | Supply voltage 5V                                 | VDD |
+|  2  | Ground                                            | GND |
+|  3  | I2C serial data input/ output                     | SDA |
+|  4  | I2C serial clock input                            | SCL |
+|  5  | Interface select (/I2C: GND)                      | GND |
+|  6  | Not connected                                     |  -  |
+
+
 #### I2C Interface
 
 ```none
-  Sensor Pins                                 Raspberry Pi Pins 
+  SPS30 Sensor Pins                           Raspberry Pi Pins 
                                               [default, see below for alternative i2c buses]
 .-------.-----.                             .----------.---------.
 | Pin 1 | VDD |-----------------------------|    5V    | Pin 2/4 |
@@ -46,6 +73,21 @@ Tested on Raspberry Pi Zero/Zero W2.
 | Pin 5 | GND |-----'-----------------------|   GND    | Pin 6/9 |
 '-------'-----'                             '----------'---------'
 ```
+
+```none
+  SEN5x Sensor Pins                           Raspberry Pi Pins
+                                              [default, see below for alternative i2c buses]
+.-------.-----.                             .----------.---------.
+| Pin 1 | VDD |-----------------------------|    5V    | Pin 2/4 |
+| Pin 2 | GND |-----------------------------|   GND    | Pin 6/9 |
+| Pin 3 | SDA |-----------------------------| I2C1 SDA |  Pin 3  |
+| Pin 4 | SCL |-----------------------------| I2C1 SCL |  Pin 5  |
+| Pin 5 | SEL |-----------------------------|   GND    | Pin 6/9 |
+'-------'-----'                             '----------'---------'
+```
+
+Both SCL and SDA lines are OPEN DRAIN. They should be connected to external pull-up resistors (E.g. R=10kOhm)
+
 
 #### Multiple I2C Interfaces @ RPi
 
@@ -83,9 +125,17 @@ su - pi -c '/home/pi/AirQmonitor/AirQmonitor.py'
 
 ### Example usage
 
-#### See example.py
+#### See example.py | exampleSEN.py
  
 Default parameters of `SPS30` class
+
+| Parameter | Value | Description             |
+| --------- | ----- | ----------------------- |
+| bus       | 1     | I2C bus of Raspberry Pi |
+| address   | 0x69  | Default I2C address     |
+
+
+Default parameters of `SEN5x` class
 
 | Parameter | Value | Description             |
 | --------- | ----- | ----------------------- |
@@ -115,7 +165,7 @@ Default parameters of `BMP280` class
 
 #### Output data format
 
-##### RAW Data - JSON
+##### RAW Data - JSON - SPS30
 ```json
 {
   "t": 22.02258335240711,
@@ -134,6 +184,21 @@ Default parameters of `BMP280` class
   "tps": 1.63
 }
 ``` 
+
+##### RAW Data - JSON - SEN54
+```json
+{
+  "pm1": 1.28,
+  "pm2": 5.22,
+  "pm4": 9.45,
+  "pm10": 10.69,
+  "h": 51.0,
+  "t": 21.0,
+  "voc": 101.9,
+  "nox": 3276.7 # SEN54 dont have NOx sensor
+}
+```
+
 
 ##### Sensor.commuity POST API
 
