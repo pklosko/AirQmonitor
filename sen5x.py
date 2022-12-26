@@ -277,6 +277,9 @@ class SEN5x:
             data = (data & 0x7FFF) * -1
         return data
 
+    def is_cleaning(self) -> int:
+        return self.cleaning
+
 # Helper functions END
 #
 # Main functions
