@@ -84,7 +84,9 @@ class BMP280:
             'P8': 0,
             'P9': 0
         }
-        self.i2c = I2C(bus, address)
+        self.i2c  = I2C(bus, address)
+        self.type = "BMP280"
+        self.sn   = self.device_id()
 
 # I2C commands BEGIN
     def device_id(self) -> int:
@@ -151,7 +153,7 @@ class BMP280:
 
     def calc_t(self, adc_t: int) -> float:
         var1 = ((adc_t / 16384.0) - (self.calib_data['T1'] / 1024.0)) * self.calib_data['T2']
-        var2 = ((adc_t / 131072.0) - (self.calib_data['T1'] / 8192.0)) * (((adc_t / 131072.0) - (self.calib_data['T2'] / 8192.0)) * self.calib_data['T3'])
+        var2 = ((adc_t / 131072.0) - (self.calib_data['T1'] / 8192.0)) * ((adc_t / 131072.0) - (self.calib_data['T2'] / 8192.0)) * self.calib_data['T3']
         self.t_fine = var1 + var2
         return (var1+var2) / 5120.0
 

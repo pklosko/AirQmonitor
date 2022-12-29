@@ -30,7 +30,10 @@ class SHT40:
 
 # Init I2C BUS
     def __init__(self,  bus: int = 1, address: int = 0x44):
-        self.i2c = I2C(bus, address)
+        self.i2c  = I2C(bus, address)
+        self.type = "SHT40"
+        self.sn   = self.serial_number()
+
 
 # I2C commands BEGIN
     def serial_number(self) -> str:

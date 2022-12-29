@@ -59,9 +59,13 @@ class SEN5x:
 
 # Init I2C BUS
     def __init__(self,  bus: int = 1, address: int = 0x69):
-        self.cleaning = 0
+        self.cleaning    = 0
         self.cleaning_ts = 0
-        self.i2c      = I2C(bus, address)
+        self.i2c         = I2C(bus, address)
+        self.type        = self.product_name()
+        self.sn          = self.serial_number()
+        self.fw          = self.firmware_version()
+
 
 # I2C commands BEGIN
     def serial_number(self) -> str:
@@ -91,7 +95,7 @@ class SEN5x:
                 return "CRC mismatch"
             if(data[i:i+2] != [0x00, 0x00]):
                 result += "".join(map(chr, data[i:i+2]))
-        return str(result)
+        return str(result.rstrip('\x00'))
 
     def read_status_register(self) -> dict:
         self.i2c.write(CMD_READ_STATUS_REGISTER)
@@ -296,12 +300,12 @@ class SEN5x:
               "nox":  10
         }
         assoc = {
+              "t":    0.0,
+              "h":    0.0,
               "pm1":  0.0,
               "pm2":  0.0,
               "pm4":  0.0,
               "pm10": 0.0,
-              "h":    0.0,
-              "t":    0.0,
               "voc":  0.0,
               "nox":  0.0
         }

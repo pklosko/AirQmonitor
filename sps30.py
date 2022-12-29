@@ -1,5 +1,6 @@
 import sys
 from time import sleep
+from datetime import datetime
 from i2c.i2c import I2C
 
 # I2C commands
@@ -37,13 +38,20 @@ PACKET_SIZE = 3
 SIZE_FLOAT = 6  # IEEE754 float
 SIZE_INTEGER = 3  # unsigned 16 bit integer
 
+# Error value
+SPS_DATA_ERR = [0xC2,0xFE,0x00,0x00]  #-127.0
+#[0xBF,0x80,0x00,0x00]  #-1.0
 
 class SPS30:
 
 # Init I2C BUS
     def __init__(self,  bus: int = 1, address: int = 0x69):
-        self.cleaning = 0
-        self.i2c      = I2C(bus, address)
+        self.cleaning    = 0
+        self.cleaning_ts = 0
+        self.i2c         = I2C(bus, address)
+        self.type        = self.product_type()
+        self.sn          = self.serial_number()
+        self.fw          = self.firmware_version()
 
 # I2C commands BEGIN
     def serial_number(self) -> str:
@@ -75,7 +83,7 @@ class SPS30:
                 result += "".join(map(chr, data[i:i+2]))
         return str(result)
 
-    def read_status_register(self, text: int = 1) -> dict:
+    def read_status_register(self) -> dict:
         self.i2c.write(CMD_READ_STATUS_REGISTER)
         data = self.i2c.read(NBYTES_READ_STATUS_REGISTER)
         status = []
@@ -86,19 +94,16 @@ class SPS30:
         binary = '{:032b}'.format(
             status[0] << 24 | status[1] << 16 | status[2] << 8 | status[3])
 
-        speed_status = int(binary[10])
-        laser_status = int(binary[26])
-        fan_status   = int(binary[27])
-
-        if(text == 1):
-            speed_status = "high/low" if int(binary[10]) == 1 else "ok"
-            laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
-            fan_status = "0rpm" if int(binary[27]) == 1 else "ok"
+        speed_status = "high/low" if int(binary[10]) == 1 else "ok"
+        laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
+        fan_status   = "0rpm" if int(binary[27]) == 1 else "ok"
+        sps_status   = (int(binary[10]) & int(binary[26]) & int(binary[27]))
 
         return {
             "speed": speed_status,
             "laser": laser_status,
-            "fan": fan_status
+            "fan":   fan_status,
+            "status":sps_status
         }
 
     def clear_status_register(self) -> None:
@@ -122,6 +127,7 @@ class SPS30:
         self.i2c.write(CMD_START_FAN_CLEANING)
         sleep(12)
         self.cleaning = 0
+        self.cleaning_ts = int(datetime.now().timestamp())
 
     def read_auto_cleaning_interval(self, unit: str = 's') -> int:
         dividier = {
@@ -230,15 +236,29 @@ class SPS30:
             for i in range(0, SIZE_FLOAT, PACKET_SIZE):
                 offset = (block * SIZE_FLOAT) + i
                 if self.crc_calc(data[offset:offset+2]) != data[offset+2]:
-                    return {}
-                sensor_data.extend(data[offset:offset+2])
+                    sensor_data.extend(SPS_DATA_ERR)
+                else:
+                    sensor_data.extend(data[offset:offset+2])
             assoc[idx] = self.ieee754_number_conversion(
                 sensor_data[0] << 24 | sensor_data[1] << 16 | sensor_data[2] << 8 | sensor_data[3])
         return assoc
 
+    def status_to_str(self, sps_status_register: dict) -> str:
+        sps_info = ""
+        if(sps_status_register['status'] != 0):
+            for key in sps_status_register:
+                sps_info = sps_info + "/" + key + "-" + sps_status_register[key]
+            sps_info = sps_info + "]"
+        else:
+            sps_info = "SPS-OK]"
+        return sps_info
+
     def read_values(self) -> dict:
         return self.values_to_list(self.read_measurement())
 
-    def read_status(self) -> str:
-        sps_status = self.read_status_register(0)
-        return str(sps_status["fan"]) +  str(sps_status["laser"]) + str(sps_status["speed"]) + "00000"
+    def read_status(self) -> dict:
+        sps_status_register = self.read_status_register()
+        return {
+            "text": self.status_to_str(sps_status_register),
+            "stat": str(sps_status_register['status']) + "0000000"
+        }
