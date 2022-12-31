@@ -52,7 +52,7 @@ PACKET_SIZE = 3
 SIZE_INTEGER = 3  # unsigned 16 bit integer
 
 # Error value
-SEN_DATA_ERR = [0xC2,0xFE]  #-127.0
+SEN_DATA_ERR = [0x80,0x7F]  #-127.0
 #[0xBF,0x80,0x00,0x00]  #-1.0
 
 class SEN5x:
@@ -77,7 +77,7 @@ class SEN5x:
                 return "CRC mismatch"
             if(data[i:i+2] != [0x00, 0x00]):
                 result += "".join(map(chr, data[i:i+2]))
-        return str(result)
+        return str(result.rstrip('\x00'))
 
     def firmware_version(self) -> str:
         self.i2c.write(CMD_FIRMWARE_VERSION)
@@ -239,11 +239,21 @@ class SEN5x:
         data = self.i2c.read(NBYTES_VOC_ALGO_STATE)
         return data
 
+    def write_voc_algo_state(self, param:list) -> None:
+        data = CMD_VOC_ALGO_STATE
+        for i in range(0, NBYTES_VOC_ALGO_STATE, PACKET_SIZE):
+            if self.crc_calc(param[i:i+2]) != param[i+2]:
+                return "CRC mismatch"
+        data.extend(param)
+        print(data)
+        self.i2c.write(data)
+
     def reset(self) -> None:
         self.i2c.write(CMD_RESET)
 
     def stop_measurement_and_close(self) -> None:
         self.i2c.write(CMD_STOP_MEASUREMENT)
+#        self.save_to_file(self.type + '-' + self.sn + '-VOCalgo.bin', self.read_voc_algo_state())
         self.i2c.close()
 
     def stop_measurement(self) -> None:
@@ -260,6 +270,7 @@ class SEN5x:
         self.i2c.write(CMD_READ_MEASURED_VALUES)
         data = self.i2c.read(NBYTES_MEASURED_VALUES)
         return data
+
 # I2C commands END
 #
 # Helper functions BEGIN
@@ -284,11 +295,18 @@ class SEN5x:
     def is_cleaning(self) -> int:
         return self.cleaning
 
+    def save_to_file(self, filename: str, data: list, binary: int = 1) -> str:
+        if binary == 1:
+            bin_data = bytearray(data)
+            with open(filename, 'wb') as bin_file:
+               bin_file.write(bin_data)
+        return filename
+
 # Helper functions END
 #
 # Main functions
-    def values_to_list(self, data: list) -> dict:
-        values = ["pm1", "pm2", "pm4", "pm10", "h", "t", "voc", "nox"]
+    def values_to_list(self, data: list, sensorType: str = "SEN55") -> dict:
+        values = ["pm1", "pm2", "pm4", "pm10", "h", "t", "voc"]
         scale = {
               "pm1":  10,
               "pm2":  10,
@@ -306,9 +324,12 @@ class SEN5x:
               "pm2":  0.0,
               "pm4":  0.0,
               "pm10": 0.0,
-              "voc":  0.0,
-              "nox":  0.0
+              "voc":  0.0
         }
+        if sensorType == "SEN55":
+          values.append("nox")
+          assoc.update({"nox":0.0})
+
         for block, (idx) in enumerate(values):
             sensor_data = []
             for i in range(0, SIZE_INTEGER, PACKET_SIZE):
@@ -335,7 +356,7 @@ class SEN5x:
         return sen_info
 
     def read_values(self) -> dict:
-        return self.values_to_list(self.read_measurement())
+        return self.values_to_list(self.read_measurement(), self.type)
 
     def read_status(self) -> dict:
         sen_status_register = self.read_status_register()
