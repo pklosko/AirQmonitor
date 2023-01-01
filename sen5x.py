@@ -295,12 +295,16 @@ class SEN5x:
     def is_cleaning(self) -> int:
         return self.cleaning
 
-    def save_to_file(self, filename: str, data: list, binary: int = 1) -> str:
+    def to_file(self, filename: str, data: list, binary: int = 1) -> str:
         if binary == 1:
             bin_data = bytearray(data)
             with open(filename, 'wb') as bin_file:
                bin_file.write(bin_data)
         return filename
+
+    def from_file(self, filename: str, binary: int = 1) -> list:
+        bin_file = open(filename, 'rb')
+        return list(bin_file.read())
 
 # Helper functions END
 #
