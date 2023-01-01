@@ -229,9 +229,13 @@ Default parameters of `BMP280` class
 ```
 
 
-##### Sensor.commuity POST API
+#### Sensor.commuity POST API
 
 See [api.sensor.community](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)
+
+#### [TMEP.cz](https://tmep.cz) 
+
+See [TMEP.cz Wiki](https://wiki.tmep.cz/doku.php?id=start)
 
 ### Dependencies
 
