@@ -111,7 +111,7 @@ Tested on Raspberry Pi Zero/Zero W2.
 '-------'-----'                             '----------'---------'
 ```
 
-Memo: SCL and SDA lines are OPEN DRAIN. They should be connected to external pull-up resistors (E.g. R=10kOhm)
+Note: SCL and SDA lines are OPEN DRAIN. They should be connected to external pull-up resistors (E.g. R=10kOhm)
 
 
 #### Multiple I2C Interfaces @ RPi
@@ -129,6 +129,7 @@ Memo: SCL and SDA lines are OPEN DRAIN. They should be connected to external pul
 
 
 ```
+Note: On long i2c lines use i2c_gpio_delay_us=100
 
 [Small wiring PCB for Raspberry PI](https://oshpark.com/shared_projects/nLJpIWtm)
 
@@ -214,7 +215,7 @@ Default parameters of `BMP280` class
 }
 ``` 
 
-##### RAW Data - JSON - SEN54
+##### RAW Data - JSON - SEN5x
 ```json
 {
   "pm1": 1.28,
@@ -224,16 +225,16 @@ Default parameters of `BMP280` class
   "h": 51.0,
   "t": 21.0,
   "voc": 101.9,
-  "nox": 3276.7 # SEN54 dont have NOx sensor
+  "nox": 3276.7 # SEN54 doesn't have NOx sensor
 }
 ```
 
 
-#### Sensor.commuity POST API
+##### [Sensor.commuinty](https://sensor.community/en/) POST API
 
 See [api.sensor.community](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)
 
-#### [TMEP.cz](https://tmep.cz) 
+##### [TMEP.cz](https://tmep.cz) 
 
 See [TMEP.cz Wiki](https://wiki.tmep.cz/doku.php?id=start)
 
