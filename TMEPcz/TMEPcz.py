@@ -9,12 +9,14 @@ class TMEPcz:
 
     def __init__(self, interval: int = 3, timeout:int = 5) -> None:
         self.query_string  = ""
-        self.tmep_domain   = ""
         self.push_interval = interval
         self.timeout       = timeout
 
-    def push(self, sensor_domain:str) -> str:
+    def push(self, sensor_domain:str, sensor_guid:str = '') -> str:
         try:
+            if (sensor_guid != ''):
+              self.query_string = self.query_string.replace(self.query_string[0:self.query_string.find('=')],sensor_guid)
+
             url = "http://" + sensor_domain + TMEP_DOMAIN + self.query_string
 #            print(url)
             headers = {
