@@ -286,11 +286,7 @@ class SEN5x:
         return (crc & 0x0000FF)
 
     def int16_number_conversion(self, data: int) -> int:
-        binary = "{:016b}".format(data)
-        sign = int(binary[0:1])
-        if sign == 1:
-            data = (data & 0x7FFF) * -1
-        return data
+        return data if (data < 0x8000) else data - 0xFFFF
 
     def is_cleaning(self) -> int:
         return self.cleaning
