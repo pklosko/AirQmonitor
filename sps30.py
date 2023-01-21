@@ -97,7 +97,7 @@ class SPS30:
         speed_status = "high/low" if int(binary[10]) == 1 else "ok"
         laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
         fan_status   = "0rpm" if int(binary[27]) == 1 else "ok"
-        sps_status   = (int(binary[10]) & int(binary[26]) & int(binary[27]))
+        sps_status   = (int(binary[10]) | int(binary[26]) | int(binary[27]))
 
         return {
             "speed": speed_status,
