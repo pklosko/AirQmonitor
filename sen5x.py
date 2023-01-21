@@ -114,7 +114,7 @@ class SEN5x:
         rht_status   = "error" if int(binary[25]) == 1 else "ok"
         laser_status = "outofrange" if int(binary[26]) == 1 else "ok"
         fan_status   = "0rpm" if int(binary[27]) == 1 else "ok"
-        sen_status   = (int(binary[10]) & int(binary[12]) & int(binary[24]) & int(binary[25]) & int(binary[26]) & int(binary[27]))
+        sen_status   = (int(binary[10]) | int(binary[12]) | int(binary[24]) | int(binary[25]) | int(binary[26]) | int(binary[27]))
 
         return {
             "speed": speed_status,
